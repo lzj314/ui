@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>JS Bin</title>
+  <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .content {
+            position: relative;
+        }
+        .item {
+            position: absolute;
+            width: 200px;
+            margin-right:10px;
+            margin-top: 10px;
+            transition: all .5s;
+        }
+        .h1 {
+            height: 200px;
+            background: #f4b300;
+        }
+        .h2 {
+            height: 300px;
+            background: deepskyblue;
+        }
+        .h3 {
+            height: 400px;
+            background: orangered;
+        }
+
+  </style>
+</head>
+<body>
+<div class="content">
+    <div class="item h1">1</div>
+    <div class="item h3">2</div>
+    <div class="item h2">3</div>
+    <div class="item h1">4</div>
+    <div class="item h1">5</div>
+    <div class="item h3">6</div>
+    <div class="item h3">7</div>
+    <div class="item h2">8</div>
+    <div class="item h1">9</div>
+    <div class="item h3">10</div>
+    <div class="item h3">11</div>
+    <div class="item h3">12</div>
+    <div class="item h2">13</div>
+    <div class="item h2">14</div>
+</div>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script>
+    var w = $('.item').width();
+    var WaterFall = (function () {
+        function init() {
+            waterFall();
+            $(window).on('resize',function () {
+                waterFall();
+            });
+        }
+        function waterFall() {
+            var colnum = parseInt($('.content').width()/w);
+            var itemArr = [];
+            for(var i=0;i<colnum;i++){
+                itemArr[i] = 0;
+            }
+            $('.item').each(function () {
+                var minH = Math.min.apply(null,itemArr);
+                var minIndex = itemArr.indexOf(minH);
+                $(this).css({
+                    left:$(this).outerWidth(true)*minIndex,
+                    top:minH
+                });
+                itemArr[minIndex]+=$(this).outerHeight(true);
+            });
+        }
+        return {
+            init:init
+        };
+    })();
+    WaterFall.init();
+</script>
+</body>
+</html>

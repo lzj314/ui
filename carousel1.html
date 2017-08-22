@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>JS Bin</title>
+  <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        li {
+            list-style: none;
+        }
+        .main {
+            width: 400px;
+            overflow: hidden;
+            position: relative;
+            height:200px;
+        }
+        .carousel {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .carousel::after {
+            content:'';
+            display: block;
+            clear: both;
+        }
+        .carousel li {
+            width: 400px;
+            height: 200px;
+            float: left;
+            z-index: 5;
+        }
+        .carousel li img{
+            width: 400px;
+            height: 200px;
+        }
+        .next,
+        .pre {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            top: 50%;
+            margin-top: -15px;
+            font-size: 30px;
+            color: #69c4ff;
+            text-align: center;
+            display: block;
+            line-height: 30px;
+            z-index: 100;
+            cursor: pointer;
+        }
+        .next {
+            right: 10px;
+        }
+        .pre {
+            left: 10px;
+        }
+        .indicator {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%);
+            bottom: 20px;
+            text-align: center;
+        }
+        .indicator li {
+            float: left;
+            margin: 0 5px;
+            width: 10px;
+            height: 10px;
+            border-radius: 5px;
+            background: #666;
+            z-index: 100;
+            cursor: pointer;
+        }
+        .active {
+            background: skyblue!important;
+        }
+  </style>
+</head>
+<body>
+<div class="main">
+    <ul class="carousel">
+        <li data-id="1"><img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1917074039,637614046&fm=26&gp=0.jpg" alt=""></li>
+        <li data-id="2"><img src="https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3492201030,410597624&fm=26&gp=0.jpg" alt=""></li>
+        <li data-id="3"><img src="https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3681884381,1744550637&fm=26&gp=0.jpg" alt=""></li>
+        <li data-id="4"><img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=594658373,2631311362&fm=26&gp=0.jpg" alt=""></li>
+    </ul>
+    <span class="next">&gt;</span>
+    <span class="pre">&lt;</span>
+    <ul class="indicator">
+        <li class="active"></li>
+        <li></li>
+        <li></li>
+        <li></li>
+    </ul>
+</div>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script>
+      $(function () {
+        var $car = $('.carousel');
+        var $main = $('.main');
+        var $li = $('.carousel > li');
+        var len = $li.length;//最初ul中li的个数
+        var $pre = $('.pre');
+        var $next = $('.next');
+        var pageIndex = 0;//当前页码
+        var isClick=false;//防止重复点击
+        var timer;//自动轮播
+        var w = $('.carousel > li').width();//每个li的长度
+        $car.append($li.first().clone());
+        $car.prepend($li.last().clone());
+        $car.width((len+2)*w);
+        $car.css({left:-w});
+        autoPlay();
+        $next.click(function () {
+            playNext(1);
+        });
+        $pre.click(function () {
+            playPre(1);
+        });
+        function playNext(index) {
+            //跳往下一页，或者顺序的某一页
+            if(isClick)return;
+            isClick = true;
+            $('.carousel').animate({
+                left:'-='+index*w
+            },function () {
+                pageIndex+=index;
+                if(pageIndex===len){
+                    pageIndex = 0;
+                    $('.carousel').css({left:-w});
+                }
+                setIndicator(pageIndex);
+                isClick = false;
+            });
+        }
+        function playPre(index) {
+            //跳往上一页，或者逆序的某一页
+            if(isClick)return;
+            isClick = true;
+            $('.carousel').animate(
+                {left:'+='+index*w},function () {
+                    pageIndex-=index;
+                    if(pageIndex < 0){
+                        pageIndex=len - 1 ;
+                        $('.carousel').css({left:-len*w});
+                    }
+                    setIndicator(pageIndex);
+                    isClick = false;
+                }
+                );
+        }
+        function setIndicator(pageIndex) {
+            //指示器变化的函数
+            $('.indicator>li').eq(pageIndex).addClass('active').siblings().removeClass('active');
+        }
+        function autoPlay() {
+//            自动播放
+            timer = setInterval(function () {
+                playNext(1);
+            },1500);
+        }
+        function stopAutoPlay() {
+            clearInterval(timer);
+        }
+        $main.on('mouseleave',function () {
+            autoPlay();
+        });
+        $main.on('mouseenter',function () {
+            stopAutoPlay();
+        });
+        $('.indicator>li').on('click',function () {
+            var index = $(this).index();
+            if(pageIndex > index){
+                playPre(pageIndex-index);
+            }else if(pageIndex < index){
+                playNext(index-pageIndex);
+            }
+        });
+    });
+</script>
+</body>
+</html>

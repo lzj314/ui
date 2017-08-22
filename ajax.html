@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<script>
+		function jsonUrl(json){
+			var arr = [];
+			json.t = Math.random();
+			for(var key in json){
+				arr.push(key+'='+encodeURIComponent(json[key]));
+			}
+			return arr.join('&');
+		}
+		function ajax(options){
+			// url,type,data,success,error,timeout
+			options = options||{};
+			options.type = options.type||'get';
+			options.data = options.data||{};
+			options.timeout = options.timeout||0;
+			if(!options.url){
+				return;
+			}
+			var str = jsonUrl(options.data);
+			if(window.XMLHttpRequest){
+				var xhr = new XMLHttpRequest();
+			}else {
+				var xhr = new ActiveXObject('Microsoft.XMLHTTP');
+			}
+			if(options.type=='get'){
+				xhr.open('get',options.url+'?'+str,true);
+				xhr.send();
+			}else{
+				xhr.open('post',options.url,true);
+				xhr.setRequestHeader('Content-type','application/x-www-form-urlencoded');
+				xhr.send(str);
+			}
+			xhr.onreadystatechange = function () {
+				if(xhr.readyStatus == 4){
+					if(xhr.status>=200&&xhr.status<300||xhr.status ==304){
+						options.success&&options.success(xhr.responseText);
+					}else{
+						options.error&&options.error(xhr.status);
+					}
+				}
+			}
+			if(timeout){
+				var timer = setTimeout(function () {
+					/* body... */
+					// options.error&&options.error(xhr.status);
+					xhr.abort();//取消请求
+				},timeout)
+			}
+		}
+	</script>
+</body>
+</html>
